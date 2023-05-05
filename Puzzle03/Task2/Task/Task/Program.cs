@@ -36,7 +36,7 @@ namespace Task
                 if (counter > 2)
                     counter = 0;
 
-          
+
             }
 
             var alphabet = Enumerable.Range('a', 26).Select(o => ((char)o)).Union(Enumerable.Range('A', 26).Select(o => (char)o)).ToList();
@@ -49,62 +49,6 @@ namespace Task
 
             Console.WriteLine("Result is {0}", exceptionList.Sum());
             Console.ReadKey();
-        }
-
-        private static int ParseLine(string line)
-        {
-            var splits = line.Split(' ');
-
-            if (splits[0] == "A")
-            {
-
-                if (splits[1] == "X")
-                    return 1 + 3;
-
-                if (splits[1] == "Y")
-                    return 2 + 6;
-
-                if (splits[1] == "Z")
-                    return 3 + 0;
-
-            }
-
-            if (splits[0] == "B")
-            {
-
-                if (splits[1] == "X")
-                    return 1 + 0;
-
-                if (splits[1] == "Y")
-                    return 2 + 3;
-
-                if (splits[1] == "Z")
-                    return 3 + 6;
-
-            }
-
-            if (splits[0] == "C")
-            {
-
-                if (splits[1] == "X")
-                    return 1 + 6;
-
-                if (splits[1] == "Y")
-                    return 2 + 0;
-
-                if (splits[1] == "Z")
-                    return 3 + 3;
-
-            }
-
-            return 0;
-
-
-
-
-
-
-
         }
     }
 }

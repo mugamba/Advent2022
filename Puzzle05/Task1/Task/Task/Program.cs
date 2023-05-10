@@ -51,23 +51,13 @@ namespace Task
                 var quantity = Int32.Parse(splits[1]);
                 var from = Int32.Parse(splits[3]);
                 var to = Int32.Parse(splits[5]);
-
-
                 PlayMoves(quantity, from, to);
-               
-
             }
-            //var stack1 = new Stack<char>(l1.ToArray().Reverse());
-            //var stack2 = new Stack<char>(l2.ToArray().Reverse());
-            //var stack3 = new Stack<char>(l3.ToArray().Reverse());
-
-
             var word = new StringBuilder();
 
             foreach (var stack in _stacks)
             {
                 word.Append(stack.Value.Peek());
-            
             }
             
             Console.WriteLine("Result is {0}", word.ToString());

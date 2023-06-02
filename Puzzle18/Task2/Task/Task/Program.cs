@@ -45,7 +45,7 @@ namespace Task
 
 
 
-            var airDrops = _getAllIntersection.Where(o => !IsOpenDrop(o, new List<Cube>())).ToList();
+            var airDrops = _getAllIntersection.Where(o => IsAirDrop(o, new List<Cube>())).ToList();
 
             var a = _getAllIntersection.Select(o=>o.X).Min();
             var ma = _getAllIntersection.Select(o => o.X).Max();
@@ -166,82 +166,73 @@ namespace Task
 
         }
 
-        public static Boolean IsOpenDrop(Cube selected, List<Cube> visited)
+        public static Boolean IsAirDrop(Cube selected, List<Cube> visited)
         {
-            Boolean moveMinusX = false;
-            Boolean movePlusX = false;
-            Boolean moveMinusY = false;
-            Boolean movePlusY = false;
-            Boolean moveMinusZ = false;
-            Boolean movePlusZ = false;
+            Boolean moveMinusX = true;
+            Boolean movePlusX = true;
+            Boolean moveMinusY = true;
+            Boolean movePlusY = true;
+            Boolean moveMinusZ = true;
+            Boolean movePlusZ = true;
 
             Cube move = null;
-
-            if (_outside.Contains(selected))
-            {
-                foreach (var v in visited)
-                {
-                    if (!_outside.Contains(v))
-                        _outside.Add(v);
-                }
-                return true;
-            
-            }
 
             visited.Add(selected);
             if (selected.X <= 0 || selected.Y <= 0 || selected.Z <= 0
                 || selected.X >= 21 || selected.Y >= 21 || selected.Z >= 21)
             {
                 _outside.AddRange(visited);
-                return true;
+                return false;
             }
 
             move = new Cube(selected.X - 1, selected.Y, selected.Z);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
-            { 
-                moveMinusX = IsOpenDrop(move, visited);
-                if (moveMinusX)
-                    return true;
+            {
+                moveMinusX = IsAirDrop(move, visited.ToList());
+                if (!moveMinusX)
+                    return false;
             }
 
             move = new Cube(selected.X + 1, selected.Y, selected.Z);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
             {
-                movePlusX = IsOpenDrop(move, visited);
-                if (movePlusX)
-                    return true;
+                movePlusX = IsAirDrop(move, visited.ToList());
+                if (!movePlusX)
+                    return false;
+
             }
 
             move = new Cube(selected.X, selected.Y-1, selected.Z);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
             {
-                moveMinusY = IsOpenDrop(move, visited);
-                if (moveMinusY)
-                    return true;
+                moveMinusY = IsAirDrop(move, visited.ToList());
+                if (!moveMinusY)
+                    return false;
+
             }
 
             move = new Cube(selected.X, selected.Y+1, selected.Z);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
             {
-                movePlusY = IsOpenDrop(move, visited);
-                if (movePlusY)
-                    return true;
+                movePlusY = IsAirDrop(move, visited.ToList());
+                if (!movePlusY)
+                    return false;
             }
 
             move = new Cube(selected.X, selected.Y, selected.Z-1);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
             {
-                moveMinusZ = IsOpenDrop(move, visited);
-                if (moveMinusZ)
-                    return true;
+                moveMinusZ = IsAirDrop(move, visited.ToList());
+                if (!moveMinusZ)
+                    return false;
             }
 
             move = new Cube(selected.X, selected.Y, selected.Z+1);
             if (!_cubeList.Contains(move) && !visited.Contains(move))
             {
-                movePlusZ = IsOpenDrop(move, visited);
-                if (movePlusZ)
-                    return true;
+                movePlusZ = IsAirDrop(move, visited);
+                if (!movePlusZ)
+                    return false;
             }
 
             return moveMinusX && movePlusX && moveMinusY && movePlusY && moveMinusZ && movePlusZ;

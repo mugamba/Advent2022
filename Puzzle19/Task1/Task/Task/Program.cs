@@ -11,37 +11,46 @@ namespace Task
     class Program
     {
         public static List<RobotFactory> _factories = new List<RobotFactory>();
-
         public static Dictionary<string, int> _dicitionary = new Dictionary<string, int>();
-        
-
+       
         static void Main(string[] args)
         {
-
             var lines = File.ReadAllLines("input.txt");
             var counter = 0;
-            foreach (var line in lines)
-            {
-                _factories.Add(new RobotFactory(line, counter.ToString()));
-                counter++;
-            }
-            foreach (var robot in _factories)
-            {
-                robot.DoTurn(0, new Boolean[] { false, false, false, false }, robot._items, robot._robots);
-            }
+
+            //var list = new List<RobotProduction>();
+            //var production = new RobotProduction();
+            //var res = new Resources();
+            //res._ore = 26;
+            //res._clay = 26;
+            //res._obsidian = 26;
+
+            //var req = new RobotRequirements();
+            //req._oreRobot = 4;
+            //req._clayRobot = 2;
+            //req._obsidianRobot = new Tuple<int, int>(3, 14);
+            //req._geodeRobot = new Tuple<int, int>(2, 7);
+
+        
+
+            // CalculateAllPosibleProductions(list, production, res, req);
 
             //Console.WriteLine("Result is {0}", first * second);
             Console.ReadKey();
         }
 
+      
 
-        public class RobotFactory
+    
+
+
+    public class RobotFactory
         {
-            public int[] _items = new int[4];
-            public int[] _robots = new int[4];
-            public String _name;
-        
-            public List<Tuple<int, int>> _robotreqs = new List<Tuple<int, int>>();
+            public int _oreRobots;
+            public int _clayRobots;
+            public int _obsidianRobots;
+            public int _geodeRobots;
+
 
             public RobotFactory(String line, String name) 
             {
@@ -53,114 +62,151 @@ namespace Task
                var clayRobotCost = Int32.Parse(match1.Value.Replace("ore", "").Trim());
 
                 var match2 = Regex.Match(splits[2], @"(\d+)[^\d]+ore");
-                var obsidinaRobotCostOre = Int32.Parse(match2.Value.Replace("ore", "").Trim());
+                var obsidianRobotCostOre = Int32.Parse(match2.Value.Replace("ore", "").Trim());
                 var match3 = Regex.Match(splits[2], @"(\d+)[^\d]+clay");
-                var obsidinaRobotCostClay = Int32.Parse(match3.Value.Replace("clay", "").Trim());
+                var obsidianRobotCostClay = Int32.Parse(match3.Value.Replace("clay", "").Trim());
 
                 var match4 = Regex.Match(splits[3], @"(\d+)[^\d]+ore");
                 var geodeRobotCostOre = Int32.Parse(match4.Value.Replace("ore", "").Trim());
                 var match5 = Regex.Match(splits[3], @"(\d+)[^\d]+obsidian");
                 var geodeRobotCostObsidian = Int32.Parse(match5.Value.Replace("obsidian", "").Trim());
 
-                _robotreqs.Add(new Tuple<int, int>(oreRobotCost, 0));
-                _robotreqs.Add(new Tuple<int, int>(clayRobotCost, 0));
-                _robotreqs.Add(new Tuple<int, int>(obsidinaRobotCostOre, obsidinaRobotCostClay));
-                _robotreqs.Add(new Tuple<int, int>(geodeRobotCostOre, geodeRobotCostObsidian));
-                _robots[0] = 1;
-                _name = name;
+
+                var req = new RobotRequirements();
+                req._oreRobot = oreRobotCost;
+                req._clayRobot = clayRobotCost;
+                req._obsidianRobot = new Tuple<int, int>(obsidianRobotCostOre, obsidianRobotCostClay);
+                req._geodeRobot = new Tuple<int, int>(geodeRobotCostOre, geodeRobotCostObsidian);
+                _oreRobots = 1;
+
+                for (int i = 0; i < 24; i++)
+                {
+                    var list = new List<RobotProduction>();
+                    var items = new Resources()
+                    {
+                        _ore = _oreRobots,
+                        _clay = _clayRobots,
+                        _obsidian = _obsidianRobots,
+                        _geode = _geodeRobots
+                    };
+
+                   CalculateAllPosibleProductions(list, new RobotProduction(), items, req);
+                    
+                   
+                }
             }
-             public void DoTurn(int step, Boolean[] production, int[] items, int[] robots)
-             {
-                if (_dicitionary.Count > 0)
+
+            public struct RobotProduction
+            {
+                public int _oreRobots;
+                public int _clayRobots;
+                public int _obsidianRobots;
+                public int _geodeRobots;
+
+                public RobotProduction Clone()
                 {
-                    var max = _dicitionary.Select(o => o.Value).Max();
-                    if (max != 0 && 24 - step < max)
-                        return;
+                    var r = new RobotProduction();
+                    r._oreRobots = _oreRobots;
+                    r._clayRobots = _clayRobots;
+                    r._obsidianRobots = _obsidianRobots;
+                    r._geodeRobots = _geodeRobots;
+                    return r;
                 }
 
-                if (step == 24)
-                {
-                    _items = items;
-                    _robots = robots;
 
-                    if (_dicitionary.ContainsKey(_name) && _dicitionary[_name] < items[3])
+            }
+
+
+            public struct Resources
+            {
+                public int _ore;
+                public int _clay;
+                public int _obsidian;
+                public int _geode;
+
+                public Resources Clone()
+                {
+                    var r = new Resources();
+                    r._ore = _ore;
+                    r._clay = _clay;
+                    r._obsidian = _obsidian;
+                    r._geode = _geode;
+                    return r;
+                }
+            }
+            public struct RobotRequirements
+            {
+                public int _oreRobot;
+                public int _clayRobot;
+                public Tuple<int, int> _obsidianRobot;
+                public Tuple<int, int> _geodeRobot;
+            }
+
+
+
+
+            private static void CalculateAllPosibleProductions(List<RobotProduction> allPossibleProductions, RobotProduction rp, Resources res, RobotRequirements robotRequirements)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+
+                    if (i == 0)
                     {
-                        _dicitionary.Add(_name, items[3]);
+                        var canProduceOre = res._ore >= robotRequirements._oreRobot;
+                        if (canProduceOre)
+                        {
+                            var robotProductions = rp.Clone();
+                            var resources = res.Clone();
+                            resources._ore = resources._ore - robotRequirements._oreRobot;
+                            robotProductions._oreRobots = robotProductions._oreRobots + 1;
+                            CalculateAllPosibleProductions(allPossibleProductions, robotProductions, resources, robotRequirements);
+                        }
                     }
-                    else
-                    { 
-                        if (!_dicitionary.ContainsKey(_name))
-                            _dicitionary.Add(_name, items[3]);
 
-                    }
-                }
-
-                for (int i = 0; i < 4; i++)
-                {
-                    if (production[i])
+                    if (i == 1)
                     {
-
-                        if (i == 0)
+                        var canProduceClay = res._ore >= robotRequirements._clayRobot;
+                        if (canProduceClay)
                         {
-                            items[0] = items[0] - _robotreqs[0].Item1;
-
+                            var robotProductions = rp.Clone();
+                            var resources = res.Clone();
+                            resources._ore = resources._ore - robotRequirements._clayRobot;
+                            robotProductions._clayRobots = robotProductions._clayRobots + 1;
+                            CalculateAllPosibleProductions(allPossibleProductions, robotProductions, resources, robotRequirements);
                         }
-                        if (i == 1)
+                    }
+                    if (i == 2)
+                    {
+                        var canProduceObsidian = res._ore >= robotRequirements._obsidianRobot.Item1 && res._clay >= robotRequirements._obsidianRobot.Item2;
+                        if (canProduceObsidian)
                         {
-                            items[0] = items[0] - _robotreqs[1].Item1;
-
+                            var robotProductions = rp.Clone();
+                            var resources = res.Clone();
+                            resources._ore = resources._ore - robotRequirements._obsidianRobot.Item1;
+                            resources._clay = resources._clay - robotRequirements._obsidianRobot.Item2;
+                            robotProductions._obsidianRobots = robotProductions._obsidianRobots + 1;
+                            CalculateAllPosibleProductions(allPossibleProductions, robotProductions, resources, robotRequirements);
                         }
-                        if (i == 2)
+                    }
+                    if (i == 3)
+                    {
+                        var canProduceGeode = res._ore >= robotRequirements._geodeRobot.Item1 && res._obsidian >= robotRequirements._geodeRobot.Item2;
+                        if (canProduceGeode)
                         {
-                            items[0] = items[0] - _robotreqs[2].Item1;
-                            items[1] = items[1] - _robotreqs[2].Item2;
+                            var robotProductions = rp.Clone();
+                            var resources = res.Clone();
 
-
-                        }
-                        if (i == 3)
-                        {
-                            items[0] = items[0] - _robotreqs[3].Item1;
-                            items[2] = items[2] - _robotreqs[3].Item2;
+                            resources._ore = resources._ore - robotRequirements._geodeRobot.Item1;
+                            resources._obsidian = resources._obsidian - robotRequirements._geodeRobot.Item2;
+                            robotProductions._geodeRobots = robotProductions._geodeRobots + 1;
+                            CalculateAllPosibleProductions(allPossibleProductions, robotProductions, resources, robotRequirements);
                         }
                     }
                 }
 
-                var canProduceGeodeRobot = _robotreqs[3].Item1 <= items[0] && _robotreqs[3].Item2 <= items[2];
-                var canProduceObsidianRobot = _robotreqs[2].Item1 <= items[0] && _robotreqs[2].Item2 <= items[1];
-                var canProduceClayRobot = _robotreqs[1].Item1 <= items[0];
-                var canProduceOreRobot = _robotreqs[0].Item1 <= items[0];
+                allPossibleProductions.Add(rp);
+            }
 
-                
-                for (int i = 0; i < 4; i++)
-                {
-                    items[i] += robots[i];
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    if (production[i])
-                        robots[i] += 1;
-                }
-
-                for (int i = 0; i < 5; i++)
-                {
-                    if (canProduceGeodeRobot && i == 0)
-                        DoTurn(step + 1, new Boolean[] { false, false, false, true }, items.ToArray(), robots.ToArray());
-
-                    if (canProduceObsidianRobot && i==1)
-                        DoTurn(step + 1, new Boolean[] { false, false, true, false }, items.ToArray(), robots.ToArray());
-
-                    if (canProduceClayRobot && i==2)
-                        DoTurn(step + 1, new Boolean[] { false, true, false, false }, items.ToArray(), robots.ToArray());
-
-                    if (canProduceOreRobot && i==3)
-                        DoTurn(step + 1, new Boolean[] { true, false, false, false }, items.ToArray(), robots.ToArray());
-
-                    if (i==4)
-                        DoTurn(step + 1, new Boolean[] { false, false, false, false }, items.ToArray(), robots.ToArray());
-                }
-             }
-
-          
         }
     }
 }
